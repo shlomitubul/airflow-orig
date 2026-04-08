@@ -52,7 +52,7 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "airflow.tplDict" -}}
   {{- range $key, $value := .values }}
-    {{- printf "%s: %s" $key (tpl $value $.context | quote) | nindent 4 }}
+    {{- printf "%s: %s" $key (tpl $value $.context | quote) }}
   {{- end }}
 {{- end }}
 
@@ -504,7 +504,7 @@ If release name contains chart name it will be used as a full name.
 {{ $pgResultBackendHost := $resultBackendConnection.host | default (printf "%s-%s.%s" .Release.Name "postgresql" .Release.Namespace) }}
 [databases]
 {{ .Release.Name }}-metadata = host={{ $pgMetadataHost }} dbname={{ tpl .Values.data.metadataConnection.db . }} port={{ .Values.data.metadataConnection.port }} pool_size={{ .Values.pgbouncer.metadataPoolSize }} {{ .Values.pgbouncer.extraIniMetadata | default "" }}
-{{ .Release.Name }}-result-backend = host={{ $pgResultBackendHost }} dbname={{ tpl ($resultBackendConnection.db) . }} port={{ $resultBackendConnection.port }} pool_size={{ .Values.pgbouncer.resultBackendPoolSize }} {{ .Values.pgbouncer.extraIniResultBackend | default "" }}
+{{ .Release.Name }}-result-backend = host={{ $pgResultBackendHost }} dbname={{ tpl $resultBackendConnection.db . }} port={{ $resultBackendConnection.port }} pool_size={{ .Values.pgbouncer.resultBackendPoolSize }} {{ .Values.pgbouncer.extraIniResultBackend | default "" }}
 
 [pgbouncer]
 pool_mode = transaction
