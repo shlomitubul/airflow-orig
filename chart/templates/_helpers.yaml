@@ -51,9 +51,11 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{- define "airflow.tplDict" -}}
+  {{- $rendered := dict -}}
   {{- range $key, $value := .values }}
-    {{- printf "%s: %s" $key (tpl $value $.context | quote) }}
+    {{- $_ := set $rendered $key (tpl (toString $value) $.context) -}}
   {{- end }}
+  {{- toYaml $rendered -}}
 {{- end }}
 
 {{/* Standard Airflow environment variables */}}

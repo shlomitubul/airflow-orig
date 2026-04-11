@@ -290,6 +290,29 @@ class TestServiceAccountAnnotations:
         annotations = k8s_objects[0]["metadata"]["annotations"]
         assert annotations["iam.gke.io/gcp-service-account"] == "release-name-sa@project.iam"
 
+    def test_tpl_rendered_multiple_annotations(self):
+        """Test that multiple annotations render correctly with tpl."""
+        k8s_objects = render_chart(
+            values={
+                "airflowVersion": "2.11.0",
+                "scheduler": {
+                    "serviceAccount": {
+                        "annotations": {
+                            "iam.gke.io/gcp-service-account": "{{ .Release.Name }}-sa@project.iam",
+                            "another-annotation": "{{ .Release.Name }}-other",
+                            "plain-annotation": "no-template",
+                        },
+                    },
+                },
+            },
+            show_only=["templates/scheduler/scheduler-serviceaccount.yaml"],
+        )
+        assert len(k8s_objects) == 1
+        annotations = k8s_objects[0]["metadata"]["annotations"]
+        assert annotations["iam.gke.io/gcp-service-account"] == "release-name-sa@project.iam"
+        assert annotations["another-annotation"] == "release-name-other"
+        assert annotations["plain-annotation"] == "no-template"
+
     def test_tpl_rendered_annotations_pgbouncer(self):
         """Test pgbouncer SA annotations support tpl rendering."""
         k8s_objects = render_chart(
