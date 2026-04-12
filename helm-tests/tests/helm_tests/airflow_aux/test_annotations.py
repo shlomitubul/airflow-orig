@@ -378,6 +378,25 @@ class TestServiceAccountAnnotations:
         annotations = k8s_objects[0]["metadata"]["annotations"]
         assert annotations["iam.gke.io/gcp-service-account"] == "release-name-worker@project.iam"
 
+    def test_tpl_rendered_annotations_kubernetes_worker(self):
+        """Test KubernetesExecutor worker SA annotations support tpl rendering."""
+        k8s_objects = render_chart(
+            values={
+                "executor": "KubernetesExecutor",
+                "workers": {
+                    "serviceAccount": {
+                        "annotations": {
+                            "iam.gke.io/gcp-service-account": "{{ .Release.Name }}-worker@project.iam",
+                        },
+                    },
+                },
+            },
+            show_only=["templates/workers/worker-serviceaccount.yaml"],
+        )
+        assert len(k8s_objects) == 1
+        annotations = k8s_objects[0]["metadata"]["annotations"]
+        assert annotations["iam.gke.io/gcp-service-account"] == "release-name-worker@project.iam"
+
     def test_tpl_rendered_annotations_webserver(self):
         """Test webserver SA annotations support tpl rendering (Airflow 2.x only)."""
         k8s_objects = render_chart(
